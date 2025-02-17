@@ -4,7 +4,7 @@ import { User, Lock } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
-import { register } from '@/api/auth'
+import { register } from '../api/auth'
 
 const router = useRouter()
 
