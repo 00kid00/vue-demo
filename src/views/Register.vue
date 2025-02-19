@@ -4,7 +4,6 @@ import { User, Lock, Message } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
-import { register } from '../api/auth'
 
 const router = useRouter()
 
@@ -13,7 +12,6 @@ const registerForm = reactive({
   username: '',
   password: '',
   confirmPassword: '',
-  email: ''
 })
 
 // 表单验证规则
@@ -40,32 +38,72 @@ const rules = reactive({
   ],
 })
 
+const validatePassword = (rule, value, callback) => {
+  if (value !== registerForm.password) {
+    callback(new Error('两次输入密码不一致'))
+  } else {
+    callback()
+  }
+}
+
 // 加载状态
 const loading = ref(false)
 
 // 提交注册
-const handleRegister = async () => {
+//const handleRegister = async () => {
+//  try {
+//    loading.value = true
+//    const response = await axios.post('/api/register', {
+//      username: registerForm.username,
+//      password: registerForm.password,
+//    })
+//
+//    ElMessage.success('注册成功')
+//    router.push('/login')
+//  } catch (error) {
+//    // 增强错误处理
+//    let errorMessage = '注册失败'
+//    if (error.response) {
+//      errorMessage = error.response.data?.message ||
+//        `服务器错误：${error.response.status}`
+//    } else if (error.request) {
+//      errorMessage = '无法连接到服务器'
+//    }
+//    ElMessage.error(errorMessage)
+//  } finally {
+//    loading.value = false
+//  }
+//}
+const handleRegister = () => {
   try {
-    loading.value = true
-    const response = await axios.post('/api/register', {
+    // 本地验证
+    if (registerForm.password !== registerForm.confirmPassword) {
+      throw new Error('密码不一致')
+    }
+
+    // 获取已注册用户
+    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]')
+
+    // 检查重复用户
+    if (existingUsers.some(u => u.username === registerForm.username)) {
+      throw new Error('用户名已存在')
+    }
+
+    // 存储用户（⚠️ 密码明文存储仅用于演示）
+    const newUser = {
       username: registerForm.username,
       password: registerForm.password,
-    })
+      email: registerForm.email,
+      registerDate: new Date().toISOString()
+    }
+
+    localStorage.setItem('users', JSON.stringify([...existingUsers, newUser]))
 
     ElMessage.success('注册成功')
     router.push('/login')
+
   } catch (error) {
-    // 增强错误处理
-    let errorMessage = '注册失败'
-    if (error.response) {
-      errorMessage = error.response.data?.message ||
-        `服务器错误：${error.response.status}`
-    } else if (error.request) {
-      errorMessage = '无法连接到服务器'
-    }
-    ElMessage.error(errorMessage)
-  } finally {
-    loading.value = false
+    ElMessage.error('注册失败: ' + error.message)
   }
 }
 </script>

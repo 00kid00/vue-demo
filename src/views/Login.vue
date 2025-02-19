@@ -1,18 +1,17 @@
 <script setup>
 import { ref, reactive } from 'vue'
+import { useStore } from "vuex";
 import { User, Lock } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
-import { register } from '../api/auth'
+import { login } from "@/api/login"
 
 const router = useRouter()
 
 // 响应式表单数据
 const loginForm = reactive({
-  username: '',
-  password: '',
-  remember: false
+  username: 'Chenst',
+  password: '123456',
 })
 
 // 表单验证规则
@@ -27,29 +26,32 @@ const rules = reactive({
   ]
 })
 
-// 登录加载状态
 const loading = ref(false)
+const loginFormRef = ref(null)
 
 // 提交登录
-const handleLogin = async () => {
+async function handleLogin() {
+  //try {
+  //  const res = await login(loginForm);
+  //  console.log(res);
+  //} catch (error) {
+  //  console.log(res);
+  //}
+
   try {
-    loading.value = true
-    //const response = await axios.post('/api/login', loginForm)
-    const response = await axios.post('/api/login', {
-      username: registerForm.username,
-      password: registerForm.password,
-    })
-
-    // 处理登录成功逻辑
+    const users = JSON.parse(localStorage.getItem('users') || '[]')
+    const user = users.find(u =>
+      u.username === loginForm.username &&
+      u.password === loginForm.password
+    )
+    if (!user) throw new Error('用户名或密码错误')
+    // 存储登录状态
+    localStorage.setItem('currentUser', JSON.stringify(user))
     ElMessage.success('登录成功')
-    localStorage.setItem('token', response.data.token)
-
-    // 跳转到主页
-    router.push('/')
+    router.push('/index') // 确保路径正确
   } catch (error) {
-    ElMessage.error(error.response?.data?.message || '登录失败')
-  } finally {
-    loading.value = false
+    ElMessage.error(error.message)
+    console.error('登录失败:', error)
   }
 }
 </script>
@@ -57,12 +59,12 @@ const handleLogin = async () => {
 <template>
   <div class="login-container">
     <el-card class="login-box">
-      <h2 class="login-title">系统登录</h2>
+      <h2 class="login-title">登录</h2>
 
-      <el-form :model="loginForm" :rules="rules" label-width="80px" label-position="top">
+      <el-form ref="loginFormRef" :model="loginForm" :rules="rules" label-width="80px" label-position="top">
         <!-- 用户名输入 -->
-        <el-form-item prop="username" label="用户名">
-          <el-input v-model="loginForm.username" :prefix-icon="User" placeholder="请输入用户名" clearable />
+        <el-form-item ref="loginFormRef" prop="username" label="用户名">
+          <el-input type="text" v-model="loginForm.username" :prefix-icon="User" placeholder="请输入用户名" clearable />
         </el-form-item>
 
         <!-- 密码输入 -->
@@ -71,18 +73,15 @@ const handleLogin = async () => {
             show-password />
         </el-form-item>
 
-        <!-- 记住我 + 注册链接 -->
+        <!-- 注册链接 -->
         <el-form-item>
-          <div class="form-extra">
-            <el-checkbox v-model="loginForm.remember">记住我</el-checkbox>
-            <div class="register-link">
-              <router-link to="/register">没有账号？立即注册</router-link>
-            </div>
+          <div class="register-link">
+            <router-link to="/register">没有账号？立即注册</router-link>
           </div>
         </el-form-item>
 
         <!-- 登录按钮 -->
-        <el-button type="primary" :loading="loading" @click="handleLogin" class="login-btn">
+        <el-button type="primary" @click="handleLogin" class="login-btn" :loading="loading">
           {{ loading ? '登录中...' : '立即登录' }}
         </el-button>
       </el-form>
@@ -92,10 +91,13 @@ const handleLogin = async () => {
 
 <style scoped>
 .login-container {
-  min-height: 100vh;
+  overflow: hidden;
+  height: 100vh;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
@@ -110,14 +112,6 @@ const handleLogin = async () => {
   text-align: center;
   margin-bottom: 30px;
   color: #2c3e50;
-}
-
-.form-extra {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  margin: -5px 0 10px;
 }
 
 .register-link {

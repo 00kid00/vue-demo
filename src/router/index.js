@@ -2,6 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
+    path: '/',
+    redirect: '/index'
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('../views/Login.vue'),
@@ -20,13 +24,29 @@ const routes = [
     }
   },
   {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: () => import('../views/Dashboard.vue'),
+    path: '/index',
+    name: 'index',
+    component: () => import('@/layouts/MainLayout.vue'),
     meta: {
       requiresAuth: true,  // 需要登录
-      title: '控制面板'
-    }
+      title: '春夏秋冬'
+    },
+    children:[
+      {        
+        path: '/index',
+        name: 'Index',
+        component: () => import('@/views/index.vue')
+      },
+      {
+        path: '/category',
+        name: 'category',
+      },
+      {
+        path: '/about',
+        name: 'about'
+      }
+
+    ],
   },
   // 其他路由...
 ]
@@ -42,7 +62,8 @@ router.beforeEach((to, from, next) => {
   document.title = to.meta.title || '默认标题'
 
   // 2. 获取登录状态（根据实际项目调整）
-  const isAuthenticated = localStorage.getItem('token')
+  //const isAuthenticated = localStorage.getItem('token')
+  const isAuthenticated = !!localStorage.getItem('currentUser') // 改为检查currentUser
   
   // 3. 访问需要认证的页面
   if (to.meta.requiresAuth) {
@@ -58,7 +79,7 @@ router.beforeEach((to, from, next) => {
   }
   // 4. 已登录访问登录/注册页
   else if (['Login', 'Register'].includes(to.name) && isAuthenticated) {
-    next({ path: '/dashboard' })  // 重定向到首页
+    next({ path: '/index' })  // 重定向到首页
   }
   // 5. 其他情况直接放行
   else {
