@@ -5,8 +5,10 @@ import { User, Lock } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { login } from "@/api/login"
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const auth = useAuthStore()
 
 // 响应式表单数据
 const loginForm = reactive({
@@ -35,7 +37,6 @@ async function handleLogin() {
   //  const res = await login(loginForm);
   //  console.log(res);
   //} catch (error) {
-  //  console.log(res);
   //}
 
   try {
@@ -44,10 +45,13 @@ async function handleLogin() {
       u.username === loginForm.username &&
       u.password === loginForm.password
     )
+    // const res = await api.login(credentials)
     if (!user) throw new Error('用户名或密码错误')
     // 存储登录状态
     localStorage.setItem('currentUser', JSON.stringify(user))
     ElMessage.success('登录成功')
+    // auth.login(res.data)
+    auth.login(user)
     router.push('/index') // 确保路径正确
   } catch (error) {
     ElMessage.error(error.message)

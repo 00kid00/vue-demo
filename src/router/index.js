@@ -15,14 +15,52 @@ const routes = [
     }
   },
   {
+    path: '/home',
+    name: 'home',
+    component: () => import('../views/Home.vue'),
+    meta: { 
+      requiresAuth: false, // 不需要登陆
+      title: '主页'
+    }
+  },
+  {
     path: '/register',
     name: 'Register',
     component: () => import('../views/Register.vue'),
     meta: { 
       requiresAuth: false, // 不需要登陆
       title: '用户注册'
-    }
+    },
+    children:[
+      {
+        path: '/index',
+        name: 'index',
+        component: () => import('@/layouts/MainLayout.vue'),
+      },
+    ],
   },
+  {
+    path: '/Emission',
+    name: 'Emission',
+    component: () => import('../views/Emission.vue'),
+    meta: { 
+      requiresAuth: false, // 不需要登陆
+      title: '碳足迹'
+    },
+  },
+  //{
+  //  path: '/category',
+  //  name: 'category',
+  //  component: () => import('../views/category.vue'),
+  //  meta: { 
+  //    requiresAuth: false, // 不需要登陆
+  //    title: '分类'
+  //  },
+  //},
+  //{
+  //path: '/category',
+  //component: () => import('@/views/category.vue')
+  //},
   {
     path: '/index',
     name: 'index',
@@ -40,12 +78,12 @@ const routes = [
       {
         path: '/category',
         name: 'category',
+        component: () => import('@/views/category.vue')
       },
       {
         path: '/about',
         name: 'about'
-      }
-
+      },
     ],
   },
   // 其他路由...
