@@ -4,10 +4,13 @@ import request from "@/utils/request";
 /**
  * @description: 用户登录
  */
-export function login(data) {
+export function login(username,password) {
   return request({
     method: "post",
     url: "/api/login",
-    data,
+    params:{
+        username:username,
+        password:password 
+    },
   });
 }

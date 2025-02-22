@@ -1,62 +1,66 @@
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive } from "vue";
 import { useStore } from "vuex";
-import { User, Lock } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { login } from "@/api/login"
-import { useAuthStore } from '@/stores/auth'
+import { User, Lock } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import { login } from "@/api/login";
+import { useAuthStore } from "@/stores/auth";
 
-const router = useRouter()
-const auth = useAuthStore()
+const router = useRouter();
+const auth = useAuthStore();
 
 // 响应式表单数据
 const loginForm = reactive({
-  username: 'Chenst',
-  password: '123456',
-})
+  username: "123456",
+  password: "123456",
+});
 
 // 表单验证规则
 const rules = reactive({
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: 'blur' }
+    { required: true, message: "请输入用户名", trigger: "blur" },
+    { min: 3, max: 12, message: "长度在 3 到 12 个字符", trigger: "blur" },
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 18, message: '长度在 6 到 18 个字符', trigger: 'blur' }
-  ]
-})
+    { required: true, message: "请输入密码", trigger: "blur" },
+    { min: 6, max: 18, message: "长度在 6 到 18 个字符", trigger: "blur" },
+  ],
+});
 
-const loading = ref(false)
-const loginFormRef = ref(null)
+const loading = ref(false);
+const loginFormRef = ref(null);
 
 // 提交登录
 async function handleLogin() {
-  //try {
-  //  const res = await login(loginForm);
-  //  console.log(res);
-  //} catch (error) {
-  //}
-
   try {
-    const users = JSON.parse(localStorage.getItem('users') || '[]')
-    const user = users.find(u =>
-      u.username === loginForm.username &&
-      u.password === loginForm.password
-    )
-    // const res = await api.login(credentials)
-    if (!user) throw new Error('用户名或密码错误')
-    // 存储登录状态
-    localStorage.setItem('currentUser', JSON.stringify(user))
-    ElMessage.success('登录成功')
-    // auth.login(res.data)
-    auth.login(user)
-    router.push('/index') // 确保路径正确
+    const res = await login(loginForm.username, loginForm.password);
+    const token = res.data;
+    localStorage.setItem("token", token);
+    router.push("/home");
+    console.log(res);
   } catch (error) {
-    ElMessage.error(error.message)
-    console.error('登录失败:', error)
+    console.log("登陆失败:", error);
   }
+
+  //   try {
+  //     const users = JSON.parse(localStorage.getItem('users') || '[]')
+  //     const user = users.find(u =>
+  //       u.username === loginForm.username &&
+  //       u.password === loginForm.password
+  //     )
+  //     // const res = await api.login(credentials)
+  //     if (!user) throw new Error('用户名或密码错误')
+  //     // 存储登录状态
+  //     localStorage.setItem('currentUser', JSON.stringify(user))
+  //     ElMessage.success('登录成功')
+  //     // auth.login(res.data)
+  //     auth.login(user)
+  //     router.push('/index') // 确保路径正确
+  //   } catch (error) {
+  //     ElMessage.error(error.message)
+  //     console.error('登录失败:', error)
+  //   }
 }
 </script>
 
@@ -65,16 +69,33 @@ async function handleLogin() {
     <el-card class="login-box">
       <h2 class="login-title">登录</h2>
 
-      <el-form ref="loginFormRef" :model="loginForm" :rules="rules" label-width="80px" label-position="top">
+      <el-form
+        ref="loginFormRef"
+        :model="loginForm"
+        :rules="rules"
+        label-width="80px"
+        label-position="top"
+      >
         <!-- 用户名输入 -->
         <el-form-item ref="loginFormRef" prop="username" label="用户名">
-          <el-input type="text" v-model="loginForm.username" :prefix-icon="User" placeholder="请输入用户名" clearable />
+          <el-input
+            type="text"
+            v-model="loginForm.username"
+            :prefix-icon="User"
+            placeholder="请输入用户名"
+            clearable
+          />
         </el-form-item>
 
         <!-- 密码输入 -->
         <el-form-item prop="password" label="密码">
-          <el-input v-model="loginForm.password" :prefix-icon="Lock" type="password" placeholder="请输入密码"
-            show-password />
+          <el-input
+            v-model="loginForm.password"
+            :prefix-icon="Lock"
+            type="password"
+            placeholder="请输入密码"
+            show-password
+          />
         </el-form-item>
 
         <!-- 注册链接 -->
@@ -85,8 +106,13 @@ async function handleLogin() {
         </el-form-item>
 
         <!-- 登录按钮 -->
-        <el-button type="primary" @click="handleLogin" class="login-btn" :loading="loading">
-          {{ loading ? '登录中...' : '立即登录' }}
+        <el-button
+          type="primary"
+          @click="handleLogin"
+          class="login-btn"
+          :loading="loading"
+        >
+          {{ loading ? "登录中..." : "立即登录" }}
         </el-button>
       </el-form>
     </el-card>
