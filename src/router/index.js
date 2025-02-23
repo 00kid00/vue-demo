@@ -39,15 +39,15 @@ const routes = [
       },
     ],
   },
-  {
-    path: '/Emission',
-    name: 'Emission',
-    component: () => import('../views/Emission.vue'),
-    meta: { 
-      requiresAuth: false, // 不需要登陆
-      title: '碳足迹'
-    },
-  },
+  //{
+  //  path: '/Emission',
+  //  name: 'Emission',
+  //  component: () => import('../views/Emission.vue'),
+  //  meta: { 
+  //    requiresAuth: false, // 不需要登陆
+  //    title: '碳足迹'
+  //  },
+  //},
   {
     path: '/user',
     name: 'user',
@@ -79,15 +79,20 @@ const routes = [
       title: '春夏秋冬'
     },
     children:[
-      {        
-        path: '/index',
-        name: 'Index',
-        component: () => import('@/views/index.vue')
-      },
+     // {        
+     //   path: '/index',
+     //   name: 'Index',
+     //   component: () => import('@/views/index.vue')
+     // },
       {
         path: '/category',
         name: 'category',
         component: () => import('@/views/category.vue')
+      },
+      {
+        path: '/emission',
+        name: 'Emission',
+        component: () => import('@/views/Emission.vue')
       },
       {
         path: '/about',

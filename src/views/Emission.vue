@@ -1,6 +1,6 @@
 <!-- src/components/Emission.vue -->
 <template>
-  <NavHeader />
+  <!--<NavHeader />-->
   <div class="emission-calculator">
     <!-- 标题 -->
     <!--<el-page-header title="碳足迹计算器" class="header" />-->

@@ -1,5 +1,5 @@
 <template>
-  <nav-header />
+  <!--<nav-header />-->
   <div class="user-center-container">
     <!-- 头部信息 -->
     <el-card class="user-header">
@@ -90,7 +90,7 @@
             </el-table-column>
             <el-table-column label="操作" width="180">
               <template #default="{ row }">
-                <el-button size="small">编辑</el-button>
+                <el-button size="small" @click="openEdit(row)">编辑</el-button>
                 <el-button size="small" type="danger" @click="deleteGoods(row)">
                   删除
                 </el-button>
@@ -98,6 +98,35 @@
             </el-table-column>
           </el-table>
         </div>
+
+        <!-- 商品表单对话框 -->
+        <el-dialog v-model="showGoodsDialog" :title="isEditing ? '编辑商品' : '发布新商品'" width="600px">
+          <el-form :model="goodsForm" :rules="goodsRules" ref="goodsFormRef" label-width="80px">
+            <el-form-item label="商品标题" prop="title">
+              <el-input v-model="goodsForm.title" placeholder="请输入商品名称" />
+            </el-form-item>
+            <el-form-item label="商品价格" prop="price">
+              <el-input v-model="goodsForm.price" type="number" placeholder="请输入价格">
+                <template #append>¥</template>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="商品描述" prop="description">
+              <el-input v-model="goodsForm.description" type="textarea" :rows="4" placeholder="请输入详细描述" />
+            </el-form-item>
+            <el-form-item label="商品状态" prop="status">
+              <el-select v-model="goodsForm.status" placeholder="请选择状态">
+                <el-option label="出售中" value="onsale" />
+                <el-option label="已下架" value="off" />
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <template #footer>
+            <span class="dialog-footer">
+              <el-button @click="showGoodsDialog = false">取消</el-button>
+              <el-button type="primary" @click="submitGoodsForm">确定</el-button>
+            </span>
+          </template>
+        </el-dialog>
 
         <!-- 账户安全 -->
         <div v-if="activeMenu === 'security'" class="security-section">
@@ -121,7 +150,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive } from 'vue'
 import NavHeader from '@/components/NavHeader.vue'
 import {
   User,
@@ -130,10 +159,44 @@ import {
   Lock
 } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
+// 新增引入
+import { storeToRefs } from 'pinia'
+import { useGoodsStore } from '@/stores/goods'
 
 const router = useRouter()
 
+// 商品表单相关状态
+const showGoodsDialog = ref(false)
+const isEditing = ref(false)
+const currentGoodsId = ref(null)
+const goodsFormRef = ref(null)
 
+const goodsStore = useGoodsStore()
+const { currentUserGoods } = storeToRefs(goodsStore)
+
+// 商品表单数据
+const goodsForm = reactive({
+  title: '',
+  price: null,
+  description: '',
+  status: 'onsale'
+})
+
+// 表单验证规则
+const goodsRules = {
+  title: [
+    { required: true, message: '请输入商品标题', trigger: 'blur' },
+    { min: 3, max: 50, message: '长度在3到50个字符', trigger: 'blur' }
+  ],
+  price: [
+    { required: true, message: '请输入商品价格', trigger: 'blur' },
+    //{ type: 'number', min: 0.01, message: '价格必须大于0', trigger: 'blur' }
+    { min: 0.01, message: '价格必须大于0', trigger: 'blur' }
+  ],
+  status: [
+    { required: true, message: '请选择商品状态', trigger: 'change' }
+  ]
+}
 
 // 用户信息
 const userInfo = ref({
@@ -202,7 +265,68 @@ const saveProfile = () => {
 
 const createGoods = () => {
   // 跳转到商品发布页面
+  isEditing.value = false
+  resetGoodsForm()
+  showGoodsDialog.value = true
 }
+
+// 打开编辑商品对话框
+const openEdit = (row) => {
+  isEditing.value = true
+  currentGoodsId.value = row.id
+  Object.assign(goodsForm, {
+    title: row.title,
+    price: row.price,
+    description: row.description || '',
+    status: row.status
+  })
+  showGoodsDialog.value = true
+}
+
+// 重置表单
+const resetGoodsForm = () => {
+  goodsFormRef.value?.resetFields()
+  currentGoodsId.value = null
+  Object.assign(goodsForm, {
+    title: '',
+    price: null,
+    description: '',
+    status: 'onsale'
+  })
+}
+
+
+// 提交表单
+const submitGoodsForm = async () => {
+  try {
+    await goodsFormRef.value.validate()
+
+    if (isEditing.value) {
+      // 更新商品
+      const index = goodsList.value.findIndex(item => item.id === currentGoodsId.value)
+      if (index !== -1) {
+        goodsList.value[index] = {
+          ...goodsList.value[index],
+          ...goodsForm,
+          id: currentGoodsId.value
+        }
+      }
+    } else {
+      // 新增商品
+      goodsList.value.unshift({
+        id: Date.now(), // 生成唯一ID
+        ...goodsForm,
+        createTime: new Date().toLocaleString()
+      })
+    }
+
+    showGoodsDialog.value = false
+    ElMessage.success(isEditing.value ? '商品修改成功' : '商品发布成功')
+  } catch (e) {
+    console.error('表单验证失败', e)
+  }
+}
+
 
 const deleteGoods = (row) => {
   ElMessageBox.confirm('确认删除该商品吗？', '提示', {
@@ -291,5 +415,14 @@ const changePassword = () => {
       width: 100% !important;
     }
   }
+}
+
+/* 添加对话框样式 */
+.el-dialog {
+  border-radius: 8px;
+}
+
+.el-form-item {
+  margin-bottom: 22px;
 }
 </style>
