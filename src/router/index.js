@@ -79,11 +79,11 @@ const routes = [
       title: '春夏秋冬'
     },
     children:[
-     // {        
-     //   path: '/index',
-     //   name: 'Index',
-     //   component: () => import('@/views/index.vue')
-     // },
+     {        
+       path: '/index',
+       name: 'Index',
+       component: () => import('@/views/index.vue')
+     },
       {
         path: '/category',
         name: 'category',

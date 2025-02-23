@@ -1,5 +1,5 @@
 <template>
-  <!--<nav-header />-->
+  <nav-header />
   <div class="user-center-container">
     <!-- 头部信息 -->
     <el-card class="user-header">
@@ -159,10 +159,6 @@ import {
   Lock
 } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
-// 新增引入
-import { storeToRefs } from 'pinia'
-import { useGoodsStore } from '@/stores/goods'
-
 const router = useRouter()
 
 // 商品表单相关状态
@@ -171,8 +167,6 @@ const isEditing = ref(false)
 const currentGoodsId = ref(null)
 const goodsFormRef = ref(null)
 
-const goodsStore = useGoodsStore()
-const { currentUserGoods } = storeToRefs(goodsStore)
 
 // 商品表单数据
 const goodsForm = reactive({
