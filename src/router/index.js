@@ -48,6 +48,15 @@ const routes = [
       title: '碳足迹'
     },
   },
+  {
+    path: '/user',
+    name: 'user',
+    component: () => import('../views/user.vue'),
+    meta: { 
+      requiresAuth: true, // 不需要登陆
+      title: '个人中心'
+    },
+  },
   //{
   //  path: '/category',
   //  name: 'category',

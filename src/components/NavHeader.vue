@@ -2,7 +2,7 @@
   <el-header class="header">
     <div class="logo">
       <router-link to="/home">
-        <img src="@/assets/logo.png" alt="商城Logo" style="height: 40px">
+        <img src="@/assets/logo.png" alt="商城Logo" style="height: 40px; width: 80px">
       </router-link>
     </div>
 
@@ -25,7 +25,7 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item>个人中心</el-dropdown-item>
+              <el-dropdown-item @click="userinfor">个人中心</el-dropdown-item>
               <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -83,6 +83,10 @@ const logout = () => {
     console.error('退出失败:', err)
     ElMessage.error('退出操作失败')
   }
+}
+
+const userinfor = () => {
+  router.push('/user')
 }
 
 const test = () => {

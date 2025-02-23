@@ -9,6 +9,7 @@ const router = useRouter()
 
 // 响应式表单数据
 const registerForm = reactive({
+  id: '',
   username: '',
   password: '',
   confirmPassword: '',
@@ -84,6 +85,12 @@ const handleRegister = () => {
     // 获取已注册用户
     const existingUsers = JSON.parse(localStorage.getItem('users') || '[]')
 
+    let newId = 1;
+    if (existingUsers.length > 0) {
+      const maxId = Math.max(...existingUsers.map(user => user.id));
+      newId = maxId + 1;
+    }
+
     // 检查重复用户
     if (existingUsers.some(u => u.username === registerForm.username)) {
       throw new Error('用户名已存在')
@@ -91,9 +98,9 @@ const handleRegister = () => {
 
     // 存储用户（⚠️ 密码明文存储仅用于演示）
     const newUser = {
+      id: newId,
       username: registerForm.username,
       password: registerForm.password,
-      email: registerForm.email,
       registerDate: new Date().toISOString()
     }
 
